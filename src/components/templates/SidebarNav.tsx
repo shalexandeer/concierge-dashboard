@@ -5,6 +5,7 @@ import {
   Building2,
   Sparkles,
   Calendar,
+  Settings,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -54,6 +55,12 @@ export function SidebarNav({ open, setOpen, isMobile }: SidebarNavProps) {
       title: "Facilities",
       href: "/facilities",
       icon: Calendar,
+      roles: ["super_admin", "tenant_admin", "user"],
+    },
+    {
+      title: "Services",
+      href: "/services",
+      icon: Settings,
       roles: ["super_admin", "tenant_admin", "user"],
     },
   ];

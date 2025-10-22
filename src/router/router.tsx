@@ -28,6 +28,12 @@ import Facilities from "@/pages/facilities/Facilities";
 import FacilityForm from "@/pages/facilities/FacilityForm";
 import FacilityView from "@/pages/facilities/FacilityView";
 
+// Service pages
+import Services from "@/pages/services/Services";
+import ServiceForm from "@/pages/services/ServiceForm";
+import ServiceCategories from "@/pages/services/Categories";
+import ServiceCategoryForm from "@/pages/services/CategoryForm";
+
 // Layout components
 import DashboardLayout from "@/components/templates/DashboardLayout";
 import ReactQueryLayout from "@/components/templates/ReactQueryLayout";
@@ -82,6 +88,16 @@ const RouterContent = () => {
         <Route path="/facilities/new" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><FacilityForm /></RoleGuard>} />
         <Route path="/facilities/:id/edit" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><FacilityForm /></RoleGuard>} />
         <Route path="/facilities/:id/view" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><FacilityView /></RoleGuard>} />
+        
+        {/* Service Routes - Public GET, Admin POST/PUT/DELETE */}
+        <Route path="/services" element={<Services />} />
+        <Route path="/services/new" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceForm /></RoleGuard>} />
+        <Route path="/services/:id/edit" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceForm /></RoleGuard>} />
+        
+        {/* Service Category Routes - Admin users only */}
+        <Route path="/services-categories" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceCategories /></RoleGuard>} />
+        <Route path="/services-categories/new" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceCategoryForm /></RoleGuard>} />
+        <Route path="/services-categories/:id/edit" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceCategoryForm /></RoleGuard>} />
       </Route>
 
       {/* Catch-all route */}
