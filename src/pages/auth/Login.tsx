@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { useLogin } from "@/services/auth/mutations";
 import { toast } from "react-toastify";
-import withAuth from "@/components/hoc/withAuth";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -61,8 +60,12 @@ function Login() {
           toast.success("Login successful");
           window.location.href = redirect || "/dashboard";
         },
-        onError: (error: AxiosError<ApiResponse<boolean>>) => {
-          if (error.response?.data.message == "Invalid username or password") {
+        onError: (error: AxiosError<ApiResponse<boolean>> | Error) => {
+          if (error instanceof Error && error.message === "Access denied. Insufficient permissions.") {
+            toast.error("Access denied. You don't have permission to access this application.");
+            return;
+          }
+          if (error instanceof AxiosError && error.response?.data.message == "Invalid username or password") {
             toast.error("Invalid username or password");
             return;
           }
@@ -158,5 +161,4 @@ function Login() {
   );
 }
 
-const AuthenticatedLogin = withAuth(Login, "auth");
-export default AuthenticatedLogin;
+export default Login;

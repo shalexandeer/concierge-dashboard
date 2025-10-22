@@ -7,7 +7,7 @@ import { Tenant } from "./types";
 /**
  * Get all tenants
  */
-export const useGetTenants = () => {
+export const useGetTenants = (enabled: boolean) => {
   return useQuery({
     queryKey: tenantKeys.list(),
     queryFn: async (): Promise<Tenant[]> => {
@@ -16,6 +16,7 @@ export const useGetTenants = () => {
       );
       return response.data.data;
     },
+    enabled
   });
 };
 

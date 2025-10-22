@@ -6,11 +6,11 @@ import api from "@/lib/axios";
 import { ApiResponse } from "@/lib/types/api";
 
 export const useCurrentUser = () => {
+  const accessToken = localStorage.getItem(storageKeys.accessToken);
+  
   return useQuery({
     queryKey: authKeys.currentUser(),
     queryFn: async (): Promise<MeResponse | null> => {
-      const accessToken = localStorage.getItem(storageKeys.accessToken);
-
       if (!accessToken) {
         return null;
       }
@@ -18,22 +18,19 @@ export const useCurrentUser = () => {
       try {
         const response = await api.get<ApiResponse<MeResponse>>(
           apiEndpoints.auth.currentUser
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${accessToken}`,
-          //   },
-          // }
         )
 
         return response.data.data
 
       } catch (error) {
-        console.error("Error decoding token:", error);
+        console.error("Error fetching current user:", error);
         return null;
       }
     },
+    enabled: !!accessToken, // Only run query if token exists
     refetchOnWindowFocus: false,
     refetchOnReconnect: false,
+    retry: false, // Don't retry on error
   });
 };
 

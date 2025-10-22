@@ -4,6 +4,7 @@ import { useGetAmenity } from "@/services/amenities/queries";
 import { useCreateAmenity, useUpdateAmenity } from "@/services/amenities/mutations";
 import { useGetAmenityCategories } from "@/services/amenities-categories/queries";
 import { useGetTenants } from "@/services/tenants/queries";
+import useAuthStore from "@/lib/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -19,6 +20,9 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "@/lib/hooks/use-toast";
 import { useEffect } from "react";
+import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "@/services/auth/types";
+import { storageKeys } from "@/services/auth/keys";
 
 interface AmenityFormData {
   tenantId: string;
@@ -37,7 +41,8 @@ export default function AmenityForm() {
 
   const { data: amenity } = useGetAmenity(id || "", isEdit);
   const { data: categories } = useGetAmenityCategories();
-  const { data: tenants } = useGetTenants();
+  const { isSuperAdmin } = useAuthStore();
+  const { data: tenants } = useGetTenants(isSuperAdmin());
   const createAmenity = useCreateAmenity();
   const updateAmenity = useUpdateAmenity();
 
@@ -52,6 +57,23 @@ export default function AmenityForm() {
 
   const tenantId = watch("tenantId");
   const categoryId = watch("categoryId");
+
+  useEffect(() => {
+    // Auto-fill tenantId from JWT token for creation (only for non-super admins)
+    if (!isEdit && !isSuperAdmin()) {
+      const token = localStorage.getItem(storageKeys.accessToken);
+      if (token) {
+        try {
+          const decoded = jwtDecode<JwtPayload>(token);
+          if (decoded?.tenantId) {
+            setValue("tenantId", decoded.tenantId);
+          }
+        } catch (e) {
+          // ignore decode errors
+        }
+      }
+    }
+  }, [isEdit, isSuperAdmin, setValue]);
 
   useEffect(() => {
     if (amenity && isEdit) {
@@ -86,6 +108,10 @@ export default function AmenityForm() {
           description: "Amenity updated successfully",
         });
       } else {
+        if (!data.tenantId) {
+          toast({ title: "Missing tenant", description: "No tenant found in your session.", variant: "destructive" });
+          return;
+        }
         await createAmenity.mutateAsync({
           tenantId: data.tenantId,
           categoryId: data.categoryId,
@@ -127,13 +153,13 @@ export default function AmenityForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            {/* Tenant selector - only show for super admins */}
+            {isSuperAdmin() && !isEdit && (
               <div className="space-y-2">
                 <Label htmlFor="tenantId">Tenant *</Label>
                 <Select
                   value={tenantId}
                   onValueChange={(value) => setValue("tenantId", value)}
-                  disabled={isEdit}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select tenant" />
@@ -152,7 +178,14 @@ export default function AmenityForm() {
                   </p>
                 )}
               </div>
+            )}
 
+            {/* Hidden tenantId input for non-super admins */}
+            {!isSuperAdmin() && (
+              <input type="hidden" {...register("tenantId", { required: !isEdit ? "Tenant is required" : false })} />
+            )}
+
+            <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="categoryId">Category *</Label>
                 <Select
@@ -234,7 +267,7 @@ export default function AmenityForm() {
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit">
+              <Button type="submit" disabled={!isEdit && !tenantId && !isSuperAdmin()}>
                 {isEdit ? "Update" : "Create"} Amenity
               </Button>
               <Button

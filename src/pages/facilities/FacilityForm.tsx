@@ -3,6 +3,7 @@ import { useForm, useFieldArray } from "react-hook-form";
 import { useGetFacility } from "@/services/facilities/queries";
 import { useCreateFacility, useUpdateFacility } from "@/services/facilities/mutations";
 import { useGetTenants } from "@/services/tenants/queries";
+import useAuthStore from "@/lib/store/useAuthStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,6 +19,9 @@ import { toast } from "@/lib/hooks/use-toast";
 import { useEffect } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Equipment } from "@/services/facilities/types";
+import { jwtDecode } from "jwt-decode";
+import { JwtPayload } from "@/services/auth/types";
+import { storageKeys } from "@/services/auth/keys";
 
 interface FacilityFormData {
   tenantId: string;
@@ -33,7 +37,8 @@ export default function FacilityForm() {
   const isEdit = !!id;
 
   const { data: facility } = useGetFacility(id || "", isEdit);
-  const { data: tenants } = useGetTenants();
+  const { isSuperAdmin } = useAuthStore();
+  const { data: tenants } = useGetTenants(isSuperAdmin());
   const createFacility = useCreateFacility();
   const updateFacility = useUpdateFacility();
 
@@ -44,6 +49,7 @@ export default function FacilityForm() {
     setValue,
     control,
     formState: { errors },
+    watch,
   } = useForm<FacilityFormData>({
     defaultValues: {
       equipment: [],
@@ -54,6 +60,21 @@ export default function FacilityForm() {
     control,
     name: "equipment",
   });
+
+  useEffect(() => {
+    // Auto-fill tenantId from JWT token for creation (only for non-super admins)
+    if (!isEdit && !isSuperAdmin()) {
+      const token = localStorage.getItem(storageKeys.accessToken);
+      if (token) {
+        try {
+          const decoded = jwtDecode<JwtPayload>(token);
+          if (decoded?.tenantId) {
+            setValue("tenantId", decoded.tenantId);
+          }
+        } catch (_) {}
+      }
+    }
+  }, [isEdit, isSuperAdmin, setValue]);
 
   useEffect(() => {
     if (facility && isEdit) {
@@ -84,6 +105,10 @@ export default function FacilityForm() {
           description: "Facility updated successfully",
         });
       } else {
+        if (!data.tenantId) {
+          toast({ title: "Missing tenant", description: "No tenant found in your session.", variant: "destructive" });
+          return;
+        }
         await createFacility.mutateAsync({
           tenantId: data.tenantId,
           facilityName: data.facilityName,
@@ -131,7 +156,8 @@ export default function FacilityForm() {
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-            {!isEdit && (
+            {/* Tenant selector - only show for super admins */}
+            {isSuperAdmin() && !isEdit && (
               <div className="space-y-2">
                 <Label htmlFor="tenantId">Tenant *</Label>
                 <Select onValueChange={(value) => setValue("tenantId", value)}>
@@ -150,6 +176,11 @@ export default function FacilityForm() {
                   <p className="text-sm text-destructive">{errors.tenantId.message}</p>
                 )}
               </div>
+            )}
+
+            {/* Hidden tenantId input for non-super admins */}
+            {!isSuperAdmin() && (
+              <input type="hidden" {...register("tenantId", { required: !isEdit ? "Tenant is required" : false })} />
             )}
 
             <div className="space-y-2">
@@ -261,7 +292,7 @@ export default function FacilityForm() {
             </div>
 
             <div className="flex gap-2">
-              <Button type="submit" disabled={createFacility.isPending || updateFacility.isPending}>
+              <Button type="submit" disabled={(!isEdit && !watch("tenantId") && !isSuperAdmin()) || createFacility.isPending || updateFacility.isPending}>
                 {isEdit ? "Update Facility" : "Create Facility"}
               </Button>
               <Button type="button" variant="outline" onClick={() => navigate("/facilities")}>

@@ -150,12 +150,12 @@ export function TopBar({ sidebarOpen, setSidebarOpen }: TopBarProps) {
             {user && (
               <>
                 <div className="px-2 py-1.5">
-                  <p className="text-sm font-medium">{user.name}</p>
+                  <p className="text-sm font-medium">{user.fullName || user.email}</p>
                   <p className="text-xs text-muted-foreground">{user.email}</p>
                 </div>
                 <div className="px-2 py-1.5">
                   <span className="text-xs font-medium px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                    {getRoleDisplayName(user.role.slug)}
+                    {getRoleDisplayName(user.role?.name || 'user')}
                   </span>
                 </div>
                 <DropdownMenuSeparator />

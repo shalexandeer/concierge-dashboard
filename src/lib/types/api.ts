@@ -2,11 +2,9 @@ import { AxiosError } from "axios";
 
 // Common API response structure
 export interface ApiResponse<T> {
-  status: string;
-  data: T;
-  success: boolean;
   code: number;
   message: string;
+  data: T;
 }
   
 export type ApiError = AxiosError<ApiResponse<boolean>>;
@@ -18,9 +16,10 @@ export interface PaginationParams {
   total_data?: number;
 }
 
-export interface ApiResponseWithPagination<T> extends ApiResponse<T> {
+export interface ApiResponseWithPagination<T> extends ApiResponse<{
+  data: T[];
   pagination: Pagination;
-}
+}> {}
 
 export interface Pagination {
   page: number;

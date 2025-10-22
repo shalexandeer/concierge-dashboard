@@ -12,7 +12,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Calendar, Users, Clock, DollarSign, Settings } from "lucide-react";
-import { Facility, Booking } from "@/services/facilities/types";
+import { Booking } from "@/services/facilities/types";
 import { useState } from "react";
 import BookingDialog from "@/components/organisms/BookingDialog";
 

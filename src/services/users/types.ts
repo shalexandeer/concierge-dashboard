@@ -4,6 +4,12 @@ export interface User {
   email: string;
   fullName?: string;
   phoneNumber?: string;
+  roleId: string;
+  role?: {
+    id: string;
+    name: string;
+    description: string;
+  };
   createdAt: string;
   updatedAt: string;
 }
@@ -14,12 +20,16 @@ export interface CreateUserPayload {
   password: string;
   fullName?: string;
   phoneNumber?: string;
+  roleId: string;
+  tenantIds?: string[];
 }
 
 export interface UpdateUserPayload {
   email?: string;
   fullName?: string;
   phoneNumber?: string;
+  roleId?: string;
+  tenantIds?: string[];
 }
 
 export interface UpdateCurrentUserPayload {

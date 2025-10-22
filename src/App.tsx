@@ -4,6 +4,7 @@ import { Toaster } from "@/components/ui/toaster";
 import ThemeProvider from "@/components/templates/ThemeProvider";
 import Router from "@/router/router";
 import { GEOCODING_API_KEY } from "@/lib/constant/env";
+import { useAuthInit } from "@/lib/hooks/useAuthInit";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
@@ -29,12 +30,16 @@ function App() {
           <APIProvider apiKey={GEOCODING_API_KEY}>
             <Toaster />
             <Sonner />
-            <Router />
+            <AppContent />
           </APIProvider>
         </ThemeProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
+}
+
+function AppContent() {
+  return <Router />;
 }
 
 export default App;

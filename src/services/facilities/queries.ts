@@ -1,6 +1,6 @@
 import { useQuery } from "@/lib/hooks/useCustomQuery";
 import api from "@/lib/axios";
-import { ApiResponse, ApiResponseWithPagination } from "@/lib/types/api";
+import { ApiResponse, ApiResponseWithPagination, Pagination } from "@/lib/types/api";
 import { facilityKeys, bookingKeys, apiEndpoints } from "./keys";
 import { Facility, Booking, QueryParams } from "./types";
 
@@ -10,7 +10,7 @@ import { Facility, Booking, QueryParams } from "./types";
 export const useGetFacilities = (params?: QueryParams) => {
   return useQuery({
     queryKey: [...facilityKeys.list(), params],
-    queryFn: async (): Promise<Facility> => {
+    queryFn: async (): Promise<{ data: Facility[]; pagination: Pagination }> => {
       const response = await api.get<ApiResponseWithPagination<Facility>>(
         apiEndpoints.facilities.getAll,
         { params }

@@ -10,10 +10,10 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
   
   useEffect(() => {
     // Apply role-based theme to the HTML element
-    if (user?.role.display_name === "superadmin") {
+    if (user?.role?.name === "super_admin") {
       document.documentElement.setAttribute("data-role", "superadmin");
     } else {
-      // Remove the attribute for other roles (petugas-tps)
+      // Remove the attribute for other roles
       document.documentElement.removeAttribute("data-role");
     }
 

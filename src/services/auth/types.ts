@@ -16,12 +16,23 @@ export interface RegisterPayload {
   fullName?: string;
 }
 
+// Role types
+export interface Role {
+  id: string;
+  name: string;
+  description: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // User types
 export interface User {
   id: string;
   username: string;
   email: string;
   fullName?: string;
+  roleId: string;
+  role?: Role;
   createdAt: string;
   updatedAt: string;
 }
@@ -29,6 +40,10 @@ export interface User {
 // JWT Decoded Types
 export interface JwtPayload {
   userId: string;
+  username: string;
+  roleId: string;
+  roleName: string;
+  tenantId?: string;
   exp: number;
   iat: number;
 }

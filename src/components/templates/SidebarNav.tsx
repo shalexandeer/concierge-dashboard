@@ -23,34 +23,47 @@ interface SidebarNavProps {
 export function SidebarNav({ open, setOpen, isMobile }: SidebarNavProps) {
   // const location = useLocation();
   const navigate = useNavigate();
+  const { isSuperAdmin, isTenantAdmin } = useAuthStore();
 
-  const navItems = [
+  const allNavItems = [
     {
       title: "Dashboard",
       href: "/dashboard",
       icon: LayoutDashboard,
+      roles: ["super_admin", "tenant_admin", "user"],
     },
     {
       title: "Users",
       href: "/users",
       icon: Users,
+      roles: ["super_admin"],
     },
     {
       title: "Tenants",
       href: "/tenants",
       icon: Building2,
+      roles: ["super_admin"],
     },
     {
       title: "Amenities",
       href: "/amenities",
       icon: Sparkles,
+      roles: ["super_admin", "tenant_admin"],
     },
     {
       title: "Facilities",
       href: "/facilities",
       icon: Calendar,
+      roles: ["super_admin", "tenant_admin", "user"],
     },
   ];
+
+  // Filter nav items based on user role
+  const navItems = allNavItems.filter((item) => {
+    if (isSuperAdmin()) return true; // Super admin can see everything
+    if (isTenantAdmin()) return item.roles.includes("tenant_admin");
+    return item.roles.includes("user");
+  });
 
   const { logout } = useAuthStore();
   const logoutMutation = useLogout();

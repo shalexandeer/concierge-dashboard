@@ -8,7 +8,7 @@ export const authKeys = {
 };
 
 export const storageKeys = {
-  accessToken: "access_token",
+  accessToken: "token",
   refreshToken: "refresh_token",
   user: "user",
 };

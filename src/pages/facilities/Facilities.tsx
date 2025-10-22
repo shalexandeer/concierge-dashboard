@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Plus, Pencil, Trash2, Eye, Calendar } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import useAuthStore from "@/lib/store/useAuthStore";
 import {
   Table,
   TableBody,
@@ -30,6 +31,10 @@ export default function Facilities() {
   const { data: facilities, isLoading } = useGetFacilities();
   const deleteFacility = useDeleteFacility();
   const [deleteId, setDeleteId] = useState<string | null>(null);
+  const { isTenantAdmin, isSuperAdmin } = useAuthStore();
+  
+  // Check if user can manage facilities
+  const canManageFacilities = isTenantAdmin() || isSuperAdmin();
 
   console.log(facilities)
 
@@ -70,12 +75,14 @@ export default function Facilities() {
           <h1 className="text-3xl font-bold">Hotel Facilities</h1>
           <p className="text-muted-foreground">Manage hotel facilities and bookings</p>
         </div>
-        <Button asChild>
-          <Link to="/facilities/new">
-            <Plus className="mr-2 h-4 w-4" />
-            Add Facility
-          </Link>
-        </Button>
+        {canManageFacilities && (
+          <Button asChild>
+            <Link to="/facilities/new">
+              <Plus className="mr-2 h-4 w-4" />
+              Add Facility
+            </Link>
+          </Button>
+        )}
       </div>
 
       <div className="rounded-md border">
@@ -138,18 +145,22 @@ export default function Facilities() {
                         <Calendar className="h-4 w-4" />
                       </Link>
                     </Button>
-                    <Button variant="ghost" size="icon" asChild>
-                      <Link to={`/facilities/${facility.id}/edit`}>
-                        <Pencil className="h-4 w-4" />
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => setDeleteId(facility.id)}
-                    >
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
+                    {canManageFacilities && (
+                      <>
+                        <Button variant="ghost" size="icon" asChild>
+                          <Link to={`/facilities/${facility.id}/edit`}>
+                            <Pencil className="h-4 w-4" />
+                          </Link>
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => setDeleteId(facility.id)}
+                        >
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </>
+                    )}
                   </TableCell>
                 </TableRow>
               ))
