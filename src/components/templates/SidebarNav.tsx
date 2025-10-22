@@ -4,6 +4,7 @@ import {
   Users,
   Building2,
   Sparkles,
+  Calendar,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -43,6 +44,11 @@ export function SidebarNav({ open, setOpen, isMobile }: SidebarNavProps) {
       title: "Amenities",
       href: "/amenities",
       icon: Sparkles,
+    },
+    {
+      title: "Facilities",
+      href: "/facilities",
+      icon: Calendar,
     },
   ];
 

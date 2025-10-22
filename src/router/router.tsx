@@ -22,6 +22,11 @@ import AmenityForm from "@/pages/amenities/AmenityForm";
 import Categories from "@/pages/amenities/Categories";
 import CategoryForm from "@/pages/amenities/CategoryForm";
 
+// Facility pages
+import Facilities from "@/pages/facilities/Facilities";
+import FacilityForm from "@/pages/facilities/FacilityForm";
+import FacilityView from "@/pages/facilities/FacilityView";
+
 // Layout components
 import DashboardLayout from "@/components/templates/DashboardLayout";
 import ReactQueryLayout from "@/components/templates/ReactQueryLayout";
@@ -61,6 +66,12 @@ const Router = () => (
           <Route path="/amenities/categories" element={<Categories />} />
           <Route path="/amenities/categories/new" element={<CategoryForm />} />
           <Route path="/amenities/categories/:id/edit" element={<CategoryForm />} />
+          
+          {/* Facility Routes */}
+          <Route path="/facilities" element={<Facilities />} />
+          <Route path="/facilities/new" element={<FacilityForm />} />
+          <Route path="/facilities/:id/edit" element={<FacilityForm />} />
+          <Route path="/facilities/:id/view" element={<FacilityView />} />
         </Route>
 
         {/* Catch-all route */}
