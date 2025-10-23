@@ -11,6 +11,7 @@ export interface Facility {
   ratePerHour: number;
   status: "available" | "booked";
   equipment: Equipment[];
+  imagePath?: string;
   createdAt: string;
   updatedAt: string;
   bookings?: Booking[];
@@ -34,6 +35,7 @@ export interface CreateFacilityPayload {
   capacity: number;
   ratePerHour: number;
   equipment: Equipment[];
+  imagePath?: string;
 }
 
 export interface UpdateFacilityPayload {
@@ -41,6 +43,7 @@ export interface UpdateFacilityPayload {
   capacity?: number;
   ratePerHour?: number;
   equipment?: Equipment[];
+  imagePath?: string;
 }
 
 export interface CreateBookingPayload {

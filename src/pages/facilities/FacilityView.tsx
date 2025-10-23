@@ -76,6 +76,22 @@ export default function FacilityView() {
         </div>
       </div>
 
+      {/* Facility Image */}
+      {facility.imagePath && (
+        <div className="space-y-2">
+          <h2 className="text-lg font-semibold">Facility Image</h2>
+          <div className="relative">
+            <img
+              src={facility.imagePath.startsWith('http') 
+                ? facility.imagePath 
+                : `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/uploads/images/${facility.imagePath.split('/').pop()}`}
+              alt={facility.facilityName}
+              className="w-full h-64 object-cover rounded-lg"
+            />
+          </div>
+        </div>
+      )}
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Facility Details */}
         <Card>

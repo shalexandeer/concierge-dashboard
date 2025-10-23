@@ -90,6 +90,7 @@ export default function Facilities() {
           <TableHeader>
             <TableRow>
               <TableHead>Facility Name</TableHead>
+              <TableHead>Image</TableHead>
               <TableHead>Capacity</TableHead>
               <TableHead>Rate/Hour</TableHead>
               <TableHead>Status</TableHead>
@@ -103,6 +104,21 @@ export default function Facilities() {
               facilities.data.map((facility: Facility) => (
                 <TableRow key={facility.id}>
                   <TableCell className="font-medium">{facility.facilityName}</TableCell>
+                  <TableCell>
+                    {facility.imagePath ? (
+                      <img
+                        src={facility.imagePath.startsWith('http') 
+                          ? facility.imagePath 
+                          : `${import.meta.env.VITE_API_URL || 'http://localhost:8080'}/api/v1/uploads/images/${facility.imagePath.split('/').pop()}`}
+                        alt={facility.facilityName}
+                        className="w-16 h-16 object-cover rounded-md"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 bg-muted rounded-md flex items-center justify-center">
+                        <span className="text-muted-foreground text-xs">No image</span>
+                      </div>
+                    )}
+                  </TableCell>
                   <TableCell>{facility.capacity} people</TableCell>
                   <TableCell>{formatCurrency(facility.ratePerHour)}</TableCell>
                   <TableCell>
@@ -166,7 +182,7 @@ export default function Facilities() {
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={7} className="text-center">
+                <TableCell colSpan={8} className="text-center">
                   No facilities found
                 </TableCell>
               </TableRow>

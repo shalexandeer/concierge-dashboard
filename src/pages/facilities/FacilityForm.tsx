@@ -16,12 +16,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "@/lib/hooks/use-toast";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Plus, Trash2 } from "lucide-react";
 import { Equipment } from "@/services/facilities/types";
 import { jwtDecode } from "jwt-decode";
 import { JwtPayload } from "@/services/auth/types";
 import { storageKeys } from "@/services/auth/keys";
+import ImageUpload from "@/components/molecules/ImageUpload";
+import { api } from "@/lib/axios";
 
 interface FacilityFormData {
   tenantId: string;
@@ -29,12 +31,16 @@ interface FacilityFormData {
   capacity: number;
   ratePerHour: number;
   equipment: Equipment[];
+  imagePath?: string;
 }
 
 export default function FacilityForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const isEdit = !!id;
+  const [currentImagePath, setCurrentImagePath] = useState<string>("");
+  const [selectedImageBase64, setSelectedImageBase64] = useState<string>("");
+  const [selectedImageName, setSelectedImageName] = useState<string>("");
 
   const { data: facility } = useGetFacility(id || "", isEdit);
   const { isSuperAdmin } = useAuthStore();
@@ -84,12 +90,55 @@ export default function FacilityForm() {
         capacity: facility.capacity,
         ratePerHour: facility.ratePerHour,
         equipment: facility.equipment || [],
+        imagePath: facility.imagePath || "",
       });
+      setCurrentImagePath(facility.imagePath || "");
     }
   }, [facility, isEdit, reset]);
 
+  const uploadImage = async (base64Data: string, fileName: string): Promise<string> => {
+    try {
+      // Extract MIME type from base64 data URL
+      const mimeType = base64Data.split(',')[0].split(':')[1].split(';')[0];
+      
+      // Convert base64 to blob directly
+      const base64String = base64Data.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+      const byteCharacters = atob(base64String);
+      const byteNumbers = new Array(byteCharacters.length);
+      
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: mimeType });
+      
+      // Create FormData
+      const formData = new FormData();
+      formData.append('image', blob, fileName);
+      
+      // Upload to server
+      const uploadResponse = await api.post('/uploads/images', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      });
+      
+      return uploadResponse.data.data.path;
+    } catch (error: any) {
+      throw new Error(`Failed to upload image: ${error.message}`);
+    }
+  };
+
   const onSubmit = async (data: FacilityFormData) => {
     try {
+      let imagePath = data.imagePath;
+      
+      // If we have a new base64 image, upload it first
+      if (selectedImageBase64 && selectedImageBase64 !== currentImagePath) {
+        imagePath = await uploadImage(selectedImageBase64, selectedImageName);
+      }
+      
       if (isEdit && id) {
         await updateFacility.mutateAsync({
           id,
@@ -98,6 +147,7 @@ export default function FacilityForm() {
             capacity: data.capacity,
             ratePerHour: data.ratePerHour,
             equipment: data.equipment,
+            imagePath: imagePath,
           },
         });
         toast({
@@ -115,6 +165,7 @@ export default function FacilityForm() {
           capacity: data.capacity,
           ratePerHour: data.ratePerHour,
           equipment: data.equipment,
+          imagePath: imagePath,
         });
         toast({
           title: "Success",
@@ -125,7 +176,7 @@ export default function FacilityForm() {
     } catch (error: any) {
       toast({
         title: "Error",
-        description: error.response?.data?.message || "Failed to save facility",
+        description: error.message || "Failed to save facility",
         variant: "destructive",
       });
     }
@@ -232,6 +283,18 @@ export default function FacilityForm() {
             </div>
 
             <div className="space-y-4">
+              <ImageUpload
+                onImageSelected={(base64Data, fileName) => {
+                  setSelectedImageBase64(base64Data);
+                  setSelectedImageName(fileName);
+                }}
+                onImageRemoved={() => {
+                  setSelectedImageBase64("");
+                  setSelectedImageName("");
+                }}
+                currentImage={currentImagePath}
+              />
+
               <div className="flex items-center justify-between">
                 <Label>Equipment</Label>
                 <Button type="button" onClick={addEquipment} size="sm">
