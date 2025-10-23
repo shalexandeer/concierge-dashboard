@@ -6,6 +6,7 @@ import {
   Sparkles,
   Calendar,
   Settings,
+  Utensils,
   LogOut,
   ChevronLeft,
   ChevronRight,
@@ -61,6 +62,12 @@ export function SidebarNav({ open, setOpen, isMobile }: SidebarNavProps) {
       title: "Services",
       href: "/services",
       icon: Settings,
+      roles: ["super_admin", "tenant_admin", "user"],
+    },
+    {
+      title: "Food & Beverages",
+      href: "/food-beverages",
+      icon: Utensils,
       roles: ["super_admin", "tenant_admin", "user"],
     },
   ];

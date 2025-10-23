@@ -34,6 +34,12 @@ import ServiceForm from "@/pages/services/ServiceForm";
 import ServiceCategories from "@/pages/services/Categories";
 import ServiceCategoryForm from "@/pages/services/CategoryForm";
 
+// Food & Beverage pages
+import MenuItems from "@/pages/food-beverages/MenuItems";
+import MenuItemForm from "@/pages/food-beverages/MenuItemForm";
+import MenuCategories from "@/pages/food-beverages/MenuCategories";
+import MenuCategoryForm from "@/pages/food-beverages/MenuCategoryForm";
+
 // Layout components
 import DashboardLayout from "@/components/templates/DashboardLayout";
 import ReactQueryLayout from "@/components/templates/ReactQueryLayout";
@@ -98,6 +104,16 @@ const RouterContent = () => {
         <Route path="/services-categories" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceCategories /></RoleGuard>} />
         <Route path="/services-categories/new" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceCategoryForm /></RoleGuard>} />
         <Route path="/services-categories/:id/edit" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><ServiceCategoryForm /></RoleGuard>} />
+        
+        {/* Food & Beverage Routes - Public GET, Admin POST/PUT/DELETE */}
+        <Route path="/food-beverages" element={<MenuItems />} />
+        <Route path="/food-beverages/new" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><MenuItemForm /></RoleGuard>} />
+        <Route path="/food-beverages/:id/edit" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><MenuItemForm /></RoleGuard>} />
+        
+        {/* Food & Beverage Category Routes - Admin users only */}
+        <Route path="/food-beverages-categories" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><MenuCategories /></RoleGuard>} />
+        <Route path="/food-beverages-categories/new" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><MenuCategoryForm /></RoleGuard>} />
+        <Route path="/food-beverages-categories/:id/edit" element={<RoleGuard allowedRoles={["super_admin", "tenant_admin"]}><MenuCategoryForm /></RoleGuard>} />
       </Route>
 
       {/* Catch-all route */}
